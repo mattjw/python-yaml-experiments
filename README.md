@@ -1,0 +1,1 @@
+Comparing a few Python YAML libraries. Ideally something that handles: parsing, validating, and type-converting. Jackson-like class annotations would be even better.
