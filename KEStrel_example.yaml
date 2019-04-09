@@ -1,0 +1,52 @@
+
+version: 1.0  # config file / API version ?
+elasticsearch:
+  nodes:
+  # List of elastic nodes
+  - http://elastic1:9200
+  - http://elastic2:9200
+  #compatibleVersion: 7.1.2  # compatible with 7.x.y where x >= 1 and y >= 2 (ie semver)  # do we need this?
+spark:
+  master: spark://spark-master:7077  # spark master node
+  #compatibleVersion: 2.4  # do we need this?
+kafka:
+  brokers:
+  # boostrap kafka nodes. rest of cluster auto-discovered
+  - kafka1:9092
+  - kafka2:9092
+  #compatibleVersion: 0.10  # do we need this? doesn't the specific job define its own compatibility rules?
+job:  # Job Spec  # or should this be top-level?
+  # maybe some generic job instructions go here, hence justifying a top-level "job"
+  name:
+    prefix: 
+    core: 
+    suffix: 
+      # if any (or all) of these omitted, then a default for each is used
+      # maybe make "core" obligatory?
+      # if suffix is omitted, default is to append a "started time" affix
+  exclusive: true  
+      # if true, only one of this job should run. fail if job already exists. how do we check this? based on naming conventions?
+  recipe_ingestion:
+    # this is where teh job-specific config goes
+    destination_index:
+      # either name_spec *or* name_exact
+      # actually: we don't need name_exact? because we could specify an exact name by combining scope, name, and suffix
+      name_spec:
+        scope: gs2  # mandatory. shall we call this "namespace"? hmm scope is probably fine
+        name: en_recipes  # mandatory
+        suffix: 20121201t130011z  # if omitted, auto-generated as per usual. if specified, then no auto-generation
+      name_exact: gs2-bla-bla
+    alias: 
+      # if specified, then set alias to destination index. when the alias update happens depends on the ingestion mode.
+      # alias will happen after reingest and before resume
+      name_spec:
+        scope: gs2
+        name: en_recipes
+    reingest: true  # do a complete historical reingest (from kafka). index must not exist
+    #restore: true  # restore from backup. mutually exclusive with reingest
+    resume: true  # resume stream. if reingest is true, first reingest and then resume. index may or may not exist
+
+    
+# Notes...
+#
+# allow expanding of env vars?
